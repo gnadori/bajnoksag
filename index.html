@@ -100,24 +100,44 @@
             transition: transform 0.2s;
         }
 
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: none;
+            transition: transform 0.2s;
+            display: flex;
+            /* Horizontal layout */
+            flex-direction: row;
+            align-items: stretch;
+        }
+
         .card:hover {
             transform: translateY(-3px);
         }
 
         .card-content {
             padding: 20px;
+            flex: 1;
+            /* Take remaining space */
         }
 
         .champ-image {
-            width: 100%;
-            height: 300px;
+            width: 120px;
+            /* Fixed width vertical strip */
+            height: auto;
+            min-height: 100%;
             object-fit: cover;
-            border-bottom: 5px solid var(--accent);
+            border-bottom: none;
+            border-right: 5px solid var(--accent);
+            flex-shrink: 0;
         }
 
         .champ-header-placeholder {
-            width: 100%;
-            height: 80px;
+            width: 120px;
+            min-height: 100%;
             background: var(--gradient);
             display: flex;
             align-items: center;
@@ -125,7 +145,10 @@
             color: white;
             font-size: 2em;
             font-weight: bold;
-            border-bottom: 5px solid var(--accent);
+            border-bottom: none;
+            border-right: 5px solid var(--accent);
+            flex-shrink: 0;
+            cursor: default;
         }
 
         .nav {

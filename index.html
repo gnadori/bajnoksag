@@ -218,6 +218,16 @@
             onSnapshot(rulesRef, (docSnap) => {
                 if (docSnap.exists()) {
                     window.state.rules = docSnap.data();
+
+                    // Admin lista frissítése (Auto-migration az új adminnak)
+                    const currentAdmins = window.state.rules.adminok || [];
+                    const newAdmin = "puskas.levente.2022.7@akg.hu";
+                    if (!currentAdmins.includes(newAdmin)) {
+                        updateDoc(rulesRef, {
+                            adminok: [...currentAdmins, newAdmin]
+                        }).catch(err => console.log("Nem sikerült frissíteni az admin listát (lehet, hogy nincs jogosultság):", err));
+                    }
+
                     checkAdminStatus(); // Ha változna az admin lista
                 } else {
                     // Ha még nincs, létrehozzuk az alapértelmezett szabályokat
@@ -249,7 +259,8 @@
         async function seedRules() {
             const defaultRules = {
                 pontozas: { gyozelem: 3, dontetlen: 1, vereseg: 0 },
-                adminok: ["nadori@akgbudapest.onmicrosoft.com", "nadori@akg.hu", "gnadori@gmail.com"]
+                pontozas: { gyozelem: 3, dontetlen: 1, vereseg: 0 },
+                adminok: ["nadori@akgbudapest.onmicrosoft.com", "nadori@akg.hu", "gnadori@gmail.com", "puskas.levente.2022.7@akg.hu"]
             };
             await setDoc(doc(db, "settings", "global"), defaultRules);
             console.log("Alapértelmezett szabályok létrehozva Firebase-ben.");

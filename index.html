@@ -518,38 +518,39 @@
                 }
 
                 let adminHtml = "";
-                if (champ.status === 'open') {
-                    adminHtml = `<button onclick="startChampionship('${champ.id}')" style="background-color: var(--success); margin-top: 10px;">Bajnokság Elindítása</button>`;
-                } else if (champ.status === 'started') {
-                    adminHtml = `<button onclick="closeChampionship('${champ.id}')" style="background-color: #f0ad4e; margin-top: 10px;">Lezárás</button>`;
+                if (window.state.isAdmin) {
+                    if (champ.status === 'open') {
+                        adminHtml = `<button onclick="startChampionship('${champ.id}')" style="background-color: var(--success); margin-top: 10px;">Bajnokság Elindítása</button>`;
+                    } else if (champ.status === 'started') {
+                        adminHtml = `<button onclick="closeChampionship('${champ.id}')" style="background-color: #f0ad4e; margin-top: 10px;">Lezárás</button>`;
+                    }
+
+                    // Törlés gomb mindig látható adminnak
+                    adminHtml += `<button onclick="deleteChampionship('${champ.id}', '${champ.name}')" style="background-color: #d9534f; margin-top: 10px; margin-left: 5px;">Törlés</button>`;
+
+                    adminHtml += `<div style="margin-top: 5px; font-size: 0.9em; color: #666;">Regisztráltak: ${champ.players ? champ.players.length : 0} fő</div>`;
                 }
-
-                // Törlés gomb mindig látható adminnak
-                adminHtml += `<button onclick="deleteChampionship('${champ.id}', '${champ.name}')" style="background-color: #d9534f; margin-top: 10px; margin-left: 5px;">Törlés</button>`;
-
-                adminHtml += `<div style="margin-top: 5px; font-size: 0.9em; color: #666;">Regisztráltak: ${champ.players ? champ.players.length : 0} fő</div>`;
-            }
 
                 // Kép kiválasztása
                 let imgSrc = "";
-            const nameLower = champ.name.toLowerCase();
-            const typeLower = (champ.type || "").toLowerCase();
+                const nameLower = champ.name.toLowerCase();
+                const typeLower = (champ.type || "").toLowerCase();
 
-            if (nameLower.includes("darts") || typeLower === "round_robin") imgSrc = "darts.jpg";
-            if (nameLower.includes("klask") || typeLower === "team_round_robin") imgSrc = "klask.jpg";
-            if (nameLower.includes("flip") || typeLower === "counter") imgSrc = "flip7.jpg";
+                if (nameLower.includes("darts") || typeLower === "round_robin") imgSrc = "darts.jpg";
+                if (nameLower.includes("klask") || typeLower === "team_round_robin") imgSrc = "klask.jpg";
+                if (nameLower.includes("flip") || typeLower === "counter") imgSrc = "flip7.jpg";
 
-            let headerHtml = "";
-            if (imgSrc) {
-                headerHtml = `<img src="${imgSrc}" class="champ-image" alt="${champ.name}">`;
-            } else {
-                // Placeholder ha nincs kép (pl Sakk)
-                let icon = "🏆";
-                if (nameLower.includes("sakk") || typeLower === "knockout") icon = "♟️";
-                headerHtml = `<div class="champ-header-placeholder">${icon}</div>`;
-            }
+                let headerHtml = "";
+                if (imgSrc) {
+                    headerHtml = `<img src="${imgSrc}" class="champ-image" alt="${champ.name}">`;
+                } else {
+                    // Placeholder ha nincs kép (pl Sakk)
+                    let icon = "🏆";
+                    if (nameLower.includes("sakk") || typeLower === "knockout") icon = "♟️";
+                    headerHtml = `<div class="champ-header-placeholder">${icon}</div>`;
+                }
 
-            div.innerHTML = `
+                div.innerHTML = `
                     ${headerHtml}
                     <div class="card-content">
                         <h3>${champ.name} <small style="color:#888; font-weight:normal;">(${translateType(champ.type)})</small></h3>
@@ -558,8 +559,8 @@
                         ${adminHtml}
                     </div>
                 `;
-            container.appendChild(div);
-        });
+                container.appendChild(div);
+            });
         }
 
         function translateStatus(status) {
@@ -907,6 +908,18 @@
             if (s1 === '' || s2 === '') {
                 showMessage("Kérlek töltsd ki mindkét mezőt!", "error");
                 return;
+            }
+
+            // Sakk (Knockout) ellenőrzés: Döntetlen nem ér!
+            const match = window.state.results.find(r => r.id === matchId);
+            if (match) {
+                const champ = window.state.championships.find(c => c.id === match.champId);
+                if (champ && champ.type === 'knockout') { // Sakk
+                    if (parseInt(s1) === parseInt(s2)) {
+                        showMessage("Sakkban nem lehet döntetlen! Kérlek add meg a győztest.", "error");
+                        return;
+                    }
+                }
             }
 
             try {

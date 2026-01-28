@@ -6,9 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iskolai Bajnokság</title>
     <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F7F9F9;
+            --gradient: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+        }
+
         body {
-            font-family: sans-serif;
-            max-width: 800px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f3f5;
+            background-image: radial-gradient(#4ECDC4 1px, transparent 1px), radial-gradient(#FF6B6B 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            color: var(--dark);
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
@@ -17,34 +31,59 @@
         h1,
         h2,
         h3 {
-            color: #333;
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        h1 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #FF6B6B;
+            text-shadow: 2px 2px 0px #FFE66D;
+            margin-bottom: 30px;
+            text-align: center;
         }
 
         button {
-            padding: 8px 16px;
+            padding: 10px 20px;
             cursor: pointer;
-            background-color: #0078d4;
+            background-color: var(--secondary);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
             margin-right: 5px;
         }
 
         button:hover {
-            background-color: #005a9e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background-color: #3dbdb4;
         }
 
         button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         input,
         select {
-            padding: 8px;
+            padding: 10px;
             margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--secondary);
         }
 
         .hidden {
@@ -52,61 +91,120 @@
         }
 
         .card {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            background-color: #f9f9f9;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: none;
+            transition: transform 0.2s;
         }
 
-        .match-card {
-            border-left: 4px solid #0078d4;
-            padding-left: 10px;
-            margin: 10px 0;
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .champ-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 5px solid var(--accent);
+        }
+
+        .champ-header-placeholder {
+            width: 100%;
+            height: 80px;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2em;
+            font-weight: bold;
+            border-bottom: 5px solid var(--accent);
         }
 
         .nav {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
         .nav button {
             background-color: transparent;
-            color: #333;
-            border: 1px solid #ddd;
+            color: var(--dark);
+            box-shadow: none;
+            border-radius: 40px;
+        }
+
+        .nav button:hover {
+            background-color: #f0f0f0;
+            transform: none;
         }
 
         .nav button.active {
-            background-color: #eee;
-            font-weight: bold;
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             margin-top: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #eee;
         }
 
         th,
         td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px 15px;
             text-align: left;
+            border-bottom: 1px solid #eee;
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: var(--secondary);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
         }
 
         .error {
-            color: red;
-            margin: 10px 0;
+            color: #e74c3c;
+            font-weight: bold;
         }
 
         .success {
-            color: green;
-            margin: 10px 0;
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        #authSection {
+            text-align: center;
+            margin-top: 100px;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -114,709 +212,744 @@
 <body>
 
     <div id="authSection">
-        <h1>Iskolai Bajnokság</h1>
-        <button id="loginButton">Bejelentkezés Microsoft-fiókkal</button>
-        <div id="loadingMessage" class="hidden">Betöltés...</div>
-    </div>
-
-    <div id="appSection" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 id="welcomeTitle">Üdvözöllek!</h1>
-            <button id="logoutButton" style="background-color: #d9534f;">Kijelentkezés</button>
-        </div>
-        <div id="roleDisplay" style="margin-bottom: 10px; font-style: italic; color: #666;"></div>
-
-        <div class="nav">
-            <button onclick="showPage('list')">Bajnokságok</button>
-            <button onclick="showPage('standings')">Állás</button>
-            <button onclick="showPage('admin')" id="adminNavBtn" class="hidden">Adminisztráció</button>
+        <div id="authSection">
+            <h1>TARKA-BARKA BAJNOKSÁG</h1>
+            <button id="loginButton">Játék kezdése (Microsoft)</button>
+            <div id="loadingMessage" class="hidden">Betöltés...</div>
         </div>
 
-        <div id="messageArea"></div>
+        <div id="appSection" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1 id="welcomeTitle">Üdvözöllek!</h1>
+                <button id="logoutButton" style="background-color: #d9534f;">Kijelentkezés</button>
+            </div>
+            <div id="roleDisplay" style="margin-bottom: 10px; font-style: italic; color: #666;"></div>
 
-        <!-- Bajnokságok Lista Oldal -->
-        <div id="page-list" class="page">
-            <h2>Aktív Bajnokságok</h2>
-            <div id="championshipsList"></div>
-        </div>
-
-        <!-- Állás Oldal -->
-        <div id="page-standings" class="page hidden">
-            <h2>Eredmények és Állás</h2>
-            <select id="standingsSelector" onchange="renderStandings()"></select>
-            <div id="standingsContent"></div>
-            <h3>Saját Meccsek / Eredmény Beírása</h3>
-            <div id="myMatchesList"></div>
-        </div>
-
-        <!-- Admin Oldal -->
-        <div id="page-admin" class="page hidden">
-            <h2>Adminisztráció</h2>
-
-            <div class="card">
-                <h3>Új Bajnokság</h3>
-                <input type="text" id="newChampName" placeholder="Bajnokság neve">
-                <select id="newChampType">
-                    <option value="round_robin">Darts (Körmérkőzés)</option>
-                    <option value="knockout">Sakk (Kieséses)</option>
-                    <option value="team_round_robin">Klask (Páros körmérkőzés)</option>
-                    <option value="counter">Flip 7 (Számláló)</option>
-                </select>
-                <button onclick="createChampionship()">Létrehozás</button>
+            <div class="nav">
+                <button onclick="showPage('list')" class="active">Bajnokságok</button>
+                <button onclick="showPage('standings')">Állás</button>
+                <button onclick="showPage('admin')" id="adminNavBtn" class="hidden">Adminisztráció</button>
             </div>
 
+            <div id="messageArea"></div>
 
+            <!-- Bajnokságok Lista Oldal -->
+            <div id="page-list" class="page">
+                <h2>Aktív Bajnokságok</h2>
+                <div id="championshipsList"></div>
+            </div>
+
+            <!-- Állás Oldal -->
+            <div id="page-standings" class="page hidden">
+                <h2>Eredmények és Állás</h2>
+                <select id="standingsSelector" onchange="renderStandings()"></select>
+                <div id="standingsContent"></div>
+                <h3>Saját Meccsek / Eredmény Beírása</h3>
+                <div id="myMatchesList"></div>
+            </div>
+
+            <!-- Admin Oldal -->
+            <div id="page-admin" class="page hidden">
+                <h2>Adminisztráció</h2>
+
+                <div class="card">
+                    <h3>Új Bajnokság</h3>
+                    <input type="text" id="newChampName" placeholder="Bajnokság neve">
+                    <select id="newChampType">
+                        <option value="round_robin">Darts (Körmérkőzés)</option>
+                        <option value="knockout">Sakk (Kieséses)</option>
+                        <option value="team_round_robin">Klask (Páros körmérkőzés)</option>
+                        <option value="counter">Flip 7 (Számláló)</option>
+                    </select>
+                    <button onclick="createChampionship()">Létrehozás</button>
+                </div>
+
+
+            </div>
         </div>
-    </div>
 
-    <!-- MSAL Library (Global scope) -->
-    <script src="https://alcdn.msauth.net/browser/2.14.2/js/msal-browser.min.js"></script>
+        <!-- MSAL Library (Global scope) -->
+        <script src="https://alcdn.msauth.net/browser/2.14.2/js/msal-browser.min.js"></script>
 
-    <script type="module">
-        // --- FIREBASE IMPORTS ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        <script type="module">
+            // --- FIREBASE IMPORTS ---
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+            import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        // --- KONFIGURÁCIÓ ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyDGmPaGOiW_ONuNtqiUN-_hW2BZ7jtsR0k",
-            authDomain: "bajnoksag-c202e.firebaseapp.com",
-            projectId: "bajnoksag-c202e",
-            storageBucket: "bajnoksag-c202e.firebasestorage.app",
-            messagingSenderId: "722601202347",
-            appId: "1:722601202347:web:2d60b78d4e834cf67e9dee",
-            measurementId: "G-F8E75F3BPT"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // MSAL Config
-        const msalConfig = {
-            auth: {
-                clientId: "a76e927f-3838-47dd-a400-502cb1cfe57d",
-                authority: "https://login.microsoftonline.com/fb6ed267-0587-4bca-8f76-c672df6eb313",
-                redirectUri: window.location.href
-            },
-            cache: { cacheLocation: "sessionStorage", storeAuthStateInCookie: false }
-        };
-        const msalInstance = new msal.PublicClientApplication(msalConfig);
-
-        // --- ÁLLAPOT ---
-        window.state = { // Global window.state for debugging/access if needed
-            rules: {},
-            championships: [],
-            results: [],
-            user: null,
-            isAdmin: false
-        };
-
-        // --- ADATKEZELÉS (REAL-TIME LISTENER) ---
-        function initDataListeners() {
-            // 1. Szabályok figyelése
-            const rulesRef = doc(db, "settings", "global");
-            onSnapshot(rulesRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    window.state.rules = docSnap.data();
-
-                    // Admin lista frissítése (Auto-migration az új adminnak)
-                    const currentAdmins = window.state.rules.adminok || [];
-                    const newAdmin = "puskas.levente.2022.7@akg.hu";
-                    if (!currentAdmins.includes(newAdmin)) {
-                        updateDoc(rulesRef, {
-                            adminok: [...currentAdmins, newAdmin]
-                        }).catch(err => console.log("Nem sikerült frissíteni az admin listát (lehet, hogy nincs jogosultság):", err));
-                    }
-
-                    checkAdminStatus(); // Ha változna az admin lista
-                } else {
-                    // Ha még nincs, létrehozzuk az alapértelmezett szabályokat
-                    seedRules();
-                }
-            });
-
-            // 2. Bajnokságok figyelése
-            const qChamps = query(collection(db, "championships"), orderBy("createdAt", "desc"));
-            onSnapshot(qChamps, (snapshot) => {
-                window.state.championships = [];
-                snapshot.forEach((doc) => {
-                    window.state.championships.push({ id: doc.id, ...doc.data() });
-                });
-                renderAll();
-            });
-
-            // 3. Eredmények figyelése
-            const qResults = query(collection(db, "results")); // Itt lehetne szűkíteni
-            onSnapshot(qResults, (snapshot) => {
-                window.state.results = [];
-                snapshot.forEach((doc) => {
-                    window.state.results.push({ id: doc.id, ...doc.data() });
-                });
-                renderAll();
-            });
-        }
-
-        async function seedRules() {
-            const defaultRules = {
-                pontozas: { gyozelem: 3, dontetlen: 1, vereseg: 0 },
-                pontozas: { gyozelem: 3, dontetlen: 1, vereseg: 0 },
-                adminok: ["nadori@akgbudapest.onmicrosoft.com", "nadori@akg.hu", "gnadori@gmail.com", "puskas.levente.2022.7@akg.hu"]
+            // --- KONFIGURÁCIÓ ---
+            const firebaseConfig = {
+                apiKey: "AIzaSyDGmPaGOiW_ONuNtqiUN-_hW2BZ7jtsR0k",
+                authDomain: "bajnoksag-c202e.firebaseapp.com",
+                projectId: "bajnoksag-c202e",
+                storageBucket: "bajnoksag-c202e.firebasestorage.app",
+                messagingSenderId: "722601202347",
+                appId: "1:722601202347:web:2d60b78d4e834cf67e9dee",
+                measurementId: "G-F8E75F3BPT"
             };
-            await setDoc(doc(db, "settings", "global"), defaultRules);
-            console.log("Alapértelmezett szabályok létrehozva Firebase-ben.");
-        }
 
-        // --- INDÍTÁS ---
-        async function initApp() {
-            // Auth check
-            const currentAccount = msalInstance.getActiveAccount();
-            if (currentAccount) {
-                handleLoginSuccess(currentAccount);
-            } else {
-                const accounts = msalInstance.getAllAccounts();
-                if (accounts.length > 0) {
-                    msalInstance.setActiveAccount(accounts[0]);
-                    handleLoginSuccess(accounts[0]);
-                }
-            }
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
 
-            // Adatok indítása (függetlenül a login-tól, a látogató is láthatja)
-            initDataListeners();
-        }
+            // MSAL Config
+            const msalConfig = {
+                auth: {
+                    clientId: "a76e927f-3838-47dd-a400-502cb1cfe57d",
+                    authority: "https://login.microsoftonline.com/fb6ed267-0587-4bca-8f76-c672df6eb313",
+                    redirectUri: window.location.href
+                },
+                cache: { cacheLocation: "sessionStorage", storeAuthStateInCookie: false }
+            };
+            const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-        // --- AUTH ---
-        // Gombok eseménykezelői (Mivel type=module, a globális scope-ban lévő onclick nem látja őket közvetlenül,
-        // ezért window objektumhoz rendeljük vagy addEventListener-t használunk. Inkább window-hoz rendelem a kompatibilitás miatt a HTML-ben lévő onclick-kel.)
+            // --- ÁLLAPOT ---
+            window.state = { // Global window.state for debugging/access if needed
+                rules: {},
+                championships: [],
+                results: [],
+                user: null,
+                isAdmin: false
+            };
 
-        window.signIn = async function () {
-            try {
-                const loginResponse = await msalInstance.loginPopup({ scopes: ["User.Read"] });
-                handleLoginSuccess(loginResponse.account);
-            } catch (error) {
-                console.error(error);
-                showMessage("Sikertelen bejelentkezés.", "error");
-            }
-        };
+            // --- ADATKEZELÉS (REAL-TIME LISTENER) ---
+            function initDataListeners() {
+                // 1. Szabályok figyelése
+                const rulesRef = doc(db, "settings", "global");
+                onSnapshot(rulesRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        window.state.rules = docSnap.data();
 
-        window.signOut = function () {
-            msalInstance.logoutPopup({ account: msalInstance.getActiveAccount() });
-            window.location.reload();
-        };
-
-        function handleLoginSuccess(account) {
-            window.state.user = account;
-            document.getElementById("authSection").classList.add("hidden");
-            document.getElementById("appSection").classList.remove("hidden");
-            document.getElementById("welcomeTitle").textContent = `Üdv, ${account.name}!`;
-            checkAdminStatus();
-            renderAll();
-        }
-
-        function checkAdminStatus() {
-            if (window.state.user && window.state.rules && window.state.rules.adminok) {
-                // Kisbetűs összehasonlítás a biztonság kedvéért
-                const email = window.state.user.username.toLowerCase();
-                window.state.isAdmin = window.state.rules.adminok.some(admin => admin.toLowerCase() === email);
-            } else {
-                window.state.isAdmin = false;
-            }
-
-            if (window.state.isAdmin) {
-                const adminBtn = document.getElementById("adminNavBtn");
-                if (adminBtn) adminBtn.classList.remove("hidden");
-                document.getElementById("roleDisplay").textContent = "Szerepkör: Adminisztrátor";
-            } else if (window.state.user) {
-                document.getElementById("roleDisplay").textContent = "Szerepkör: Versenyző";
-            }
-            renderAll(); // Újrarenderelés, hogy a gombok megjelenjenek
-        }
-
-        // --- RENDER & LOGIC ---
-        window.showPage = function (pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.getElementById('page-' + pageId).classList.remove('hidden');
-        };
-
-        function renderAll() {
-            renderChampionshipsList();
-            updateStandingsSelector();
-            renderStandings();
-        }
-
-        function showMessage(msg, type = 'success') {
-            const area = document.getElementById("messageArea");
-            area.innerHTML = `<div class="${type}">${msg}</div>`;
-            setTimeout(() => area.innerHTML = '', 3000);
-        }
-
-        // --- BAJNOKSÁGOK ---
-        function renderChampionshipsList() {
-            const container = document.getElementById("championshipsList");
-            container.innerHTML = "";
-
-            if (window.state.championships.length === 0) {
-                container.innerHTML = "<p>Nincs aktív bajnokság.</p>";
-                return;
-            }
-
-            window.state.championships.forEach((champ) => {
-                const div = document.createElement("div");
-                div.className = "card";
-
-                const isRegistered = window.state.user && champ.players && champ.players.some(p => p.email === window.state.user.username);
-                const isStarted = champ.status === 'started';
-
-                let actionHtml = "";
-
-                if (champ.status === 'open') {
-                    if (isRegistered) {
-                        actionHtml = `<span style="color: green; font-weight: bold;">Már regisztráltál</span>`;
-                    } else {
-                        // Ha nincs bejelentkezve, nem regisztrálhat
-                        if (window.state.user) {
-                            actionHtml = `<button onclick="registerForChamp('${champ.id}')">Regisztráció</button>`;
-                        } else {
-                            actionHtml = `<span>Jelentkezéshez lépj be!</span>`;
+                        // Admin lista frissítése (Auto-migration az új adminnak)
+                        const currentAdmins = window.state.rules.adminok || [];
+                        const newAdmin = "puskas.levente.2022.7@akg.hu";
+                        if (!currentAdmins.includes(newAdmin)) {
+                            updateDoc(rulesRef, {
+                                adminok: [...currentAdmins, newAdmin]
+                            }).catch(err => console.log("Nem sikerült frissíteni az admin listát (lehet, hogy nincs jogosultság):", err));
                         }
+
+                        checkAdminStatus(); // Ha változna az admin lista
+                    } else {
+                        // Ha még nincs, létrehozzuk az alapértelmezett szabályokat
+                        seedRules();
                     }
-                } else if (isStarted) {
-                    actionHtml = `<span>A bajnokság zajlik.</span>`;
-                } else if (champ.status === 'finished') {
-                    actionHtml = `<span>Lezárult.</span>`;
+                });
+
+                // 2. Bajnokságok figyelése
+                const qChamps = query(collection(db, "championships"), orderBy("createdAt", "desc"));
+                onSnapshot(qChamps, (snapshot) => {
+                    window.state.championships = [];
+                    snapshot.forEach((doc) => {
+                        window.state.championships.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderAll();
+                });
+
+                // 3. Eredmények figyelése
+                const qResults = query(collection(db, "results")); // Itt lehetne szűkíteni
+                onSnapshot(qResults, (snapshot) => {
+                    window.state.results = [];
+                    snapshot.forEach((doc) => {
+                        window.state.results.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderAll();
+                });
+            }
+
+            async function seedRules() {
+                const defaultRules = {
+                    pontozas: { gyozelem: 3, dontetlen: 1, vereseg: 0 },
+                    pontozas: { gyozelem: 3, dontetlen: 1, vereseg: 0 },
+                    adminok: ["nadori@akgbudapest.onmicrosoft.com", "nadori@akg.hu", "gnadori@gmail.com", "puskas.levente.2022.7@akg.hu"]
+                };
+                await setDoc(doc(db, "settings", "global"), defaultRules);
+                console.log("Alapértelmezett szabályok létrehozva Firebase-ben.");
+            }
+
+            // --- INDÍTÁS ---
+            async function initApp() {
+                // Auth check
+                const currentAccount = msalInstance.getActiveAccount();
+                if (currentAccount) {
+                    handleLoginSuccess(currentAccount);
+                } else {
+                    const accounts = msalInstance.getAllAccounts();
+                    if (accounts.length > 0) {
+                        msalInstance.setActiveAccount(accounts[0]);
+                        handleLoginSuccess(accounts[0]);
+                    }
                 }
 
-                // Admin gombok
-                let adminHtml = "";
+                // Adatok indítása (függetlenül a login-tól, a látogató is láthatja)
+                initDataListeners();
+            }
+
+            // --- AUTH ---
+            // Gombok eseménykezelői (Mivel type=module, a globális scope-ban lévő onclick nem látja őket közvetlenül,
+            // ezért window objektumhoz rendeljük vagy addEventListener-t használunk. Inkább window-hoz rendelem a kompatibilitás miatt a HTML-ben lévő onclick-kel.)
+
+            window.signIn = async function () {
+                try {
+                    const loginResponse = await msalInstance.loginPopup({ scopes: ["User.Read"] });
+                    handleLoginSuccess(loginResponse.account);
+                } catch (error) {
+                    console.error(error);
+                    showMessage("Sikertelen bejelentkezés.", "error");
+                }
+            };
+
+            window.signOut = function () {
+                msalInstance.logoutPopup({ account: msalInstance.getActiveAccount() });
+                window.location.reload();
+            };
+
+            function handleLoginSuccess(account) {
+                window.state.user = account;
+                document.getElementById("authSection").classList.add("hidden");
+                document.getElementById("appSection").classList.remove("hidden");
+                document.getElementById("welcomeTitle").textContent = `Üdv, ${account.name}!`;
+                checkAdminStatus();
+                renderAll();
+            }
+
+            function checkAdminStatus() {
+                if (window.state.user && window.state.rules && window.state.rules.adminok) {
+                    // Kisbetűs összehasonlítás a biztonság kedvéért
+                    const email = window.state.user.username.toLowerCase();
+                    window.state.isAdmin = window.state.rules.adminok.some(admin => admin.toLowerCase() === email);
+                } else {
+                    window.state.isAdmin = false;
+                }
+
                 if (window.state.isAdmin) {
+                    const adminBtn = document.getElementById("adminNavBtn");
+                    if (adminBtn) adminBtn.classList.remove("hidden");
+                    document.getElementById("roleDisplay").textContent = "Szerepkör: Adminisztrátor";
+                } else if (window.state.user) {
+                    document.getElementById("roleDisplay").textContent = "Szerepkör: Versenyző";
+                }
+                renderAll(); // Újrarenderelés, hogy a gombok megjelenjenek
+            }
+
+            // --- RENDER & LOGIC ---
+            window.showPage = function (pageId) {
+                document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+                document.getElementById('page-' + pageId).classList.remove('hidden');
+
+                // Nav active state update
+                document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+                // Egyszerűsített keresés, mivel a gombok onclickjében van a hívás
+                const btns = document.querySelectorAll('.nav button');
+                if (pageId === 'list') btns[0].classList.add('active');
+                if (pageId === 'standings') btns[1].classList.add('active');
+                if (pageId === 'admin') btns[2].classList.add('active');
+            };
+
+            function renderAll() {
+                renderChampionshipsList();
+                updateStandingsSelector();
+                renderStandings();
+            }
+
+            function showMessage(msg, type = 'success') {
+                const area = document.getElementById("messageArea");
+                area.innerHTML = `<div class="${type}">${msg}</div>`;
+                setTimeout(() => area.innerHTML = '', 3000);
+            }
+
+            // --- BAJNOKSÁGOK ---
+            function renderChampionshipsList() {
+                const container = document.getElementById("championshipsList");
+                container.innerHTML = "";
+
+                if (window.state.championships.length === 0) {
+                    container.innerHTML = "<p style='text-align: center; color: #777;'>Nincs még aktív bajnokság. Hozz létre egyet!</p>";
+                    return;
+                }
+
+                window.state.championships.forEach((champ) => {
+                    const div = document.createElement("div");
+                    div.className = "card";
+
+                    const isRegistered = window.state.user && champ.players && champ.players.some(p => p.email === window.state.user.username);
+                    const isStarted = champ.status === 'started';
+
+                    let actionHtml = "";
+
                     if (champ.status === 'open') {
-                        adminHtml = `<button onclick="startChampionship('${champ.id}')" style="background-color: #5cb85c; margin-top: 10px;">Bajnokság Elindítása</button>`;
-                    }
-                    adminHtml += `<div style="margin-top: 5px; font-size: 0.9em;">Regisztráltak: ${champ.players ? champ.players.length : 0} fő</div>`;
-                }
-
-                div.innerHTML = `
-                    <h3>${champ.name} <small>(${translateType(champ.type)})</small> - ${translateStatus(champ.status)}</h3>
-                    <p>${actionHtml}</p>
-                    ${adminHtml}
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function translateStatus(status) {
-            if (status === 'open') return 'Regisztráció nyitva';
-            if (status === 'started') return 'Folyamatban';
-            if (status === 'finished') return 'Vége';
-            return status;
-        }
-
-        function translateType(type) {
-            if (type === 'round_robin') return 'Körmérkőzés';
-            if (type === 'knockout') return 'Kieséses';
-            if (type === 'team_round_robin') return 'Páros';
-            if (type === 'counter') return 'Számláló';
-            return 'Körmérkőzés'; // Default
-        }
-
-        window.registerForChamp = async function (champId) {
-            if (!window.state.user) return;
-
-            const champRef = doc(db, "championships", champId);
-            const champ = window.state.championships.find(c => c.id === champId);
-
-            if (!champ) return;
-            const players = champ.players || [];
-
-            if (players.some(p => p.email === window.state.user.username)) {
-                showMessage("Már regisztráltál!", "error");
-                return;
-            }
-
-            let playerName = window.state.user.name;
-            // Klask (Páros) esetén partner bekérése
-            if (champ.type === 'team_round_robin') {
-                const partner = prompt("Kérlek add meg a páros partnered nevét:");
-                if (!partner) return; // Mégse
-                playerName = `${window.state.user.name} & ${partner}`;
-            }
-
-            const newPlayers = [...players, {
-                name: playerName,
-                email: window.state.user.username
-            }];
-
-            try {
-                await updateDoc(champRef, { players: newPlayers });
-                showMessage("Sikeres regisztráció!");
-            } catch (e) {
-                console.error(e);
-                showMessage("Hiba a mentéskor: " + e.message, "error");
-            }
-        };
-
-        // --- ADMIN ---
-        window.createChampionship = async function () {
-            const nameInput = document.getElementById("newChampName");
-            const typeInput = document.getElementById("newChampType");
-
-            if (!nameInput.value.trim()) {
-                showMessage("Adj meg egy nevet!", "error");
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, "championships"), {
-                    name: nameInput.value,
-                    type: typeInput.value,
-                    status: 'open',
-                    players: [],
-                    createdAt: Date.now() // Hogy sorba tudjuk rendezni
-                });
-                nameInput.value = "";
-                showMessage("Bajnokság létrehozva (" + translateType(typeInput.value) + ").");
-            } catch (e) {
-                console.error(e);
-                showMessage("Hiba létrehozáskor: " + e.message, "error");
-            }
-        };
-
-        window.startChampionship = async function (champId) {
-            const champ = window.state.championships.find(c => c.id === champId);
-            if (!champ || !champ.players || champ.players.length < 2) {
-                showMessage("Legalább 2 játékos kell az indításhoz!", "error");
-                return;
-            }
-
-            const players = [...champ.players]; // copy
-            const promises = [];
-            const type = champ.type || 'round_robin';
-
-            // 1. Státusz frissítése
-            await updateDoc(doc(db, "championships", champId), { status: 'started' });
-
-            // 2. Logika típus szerint
-            if (type === 'round_robin' || type === 'team_round_robin') {
-                // Körmérkőzés - Mindenki mindenki ellen
-                for (let i = 0; i < players.length; i++) {
-                    for (let j = i + 1; j < players.length; j++) {
-                        promises.push(addDoc(collection(db, "results"), {
-                            champId: champId,
-                            p1: players[i].email,
-                            p1Name: players[i].name,
-                            p2: players[j].email,
-                            p2Name: players[j].name,
-                            score1: null,
-                            score2: null,
-                            type: 'match'
-                        }));
-                    }
-                }
-            } else if (type === 'knockout') {
-                // Sakk - Végeletlen párosítás (1. kör)
-                // Shuffle players
-                players.sort(() => Math.random() - 0.5);
-
-                for (let i = 0; i < players.length; i += 2) {
-                    if (i + 1 < players.length) {
-                        promises.push(addDoc(collection(db, "results"), {
-                            champId: champId,
-                            p1: players[i].email,
-                            p1Name: players[i].name,
-                            p2: players[i + 1].email,
-                            p2Name: players[i + 1].name,
-                            score1: null,
-                            score2: null,
-                            round: 1,
-                            type: 'match'
-                        }));
-                    } else {
-                        // Páratlan játékos - erőnyerő (egyelőre nem kezeljük külön, vagy automatikusan továbbjut?)
-                        console.log("Erőnyerő:", players[i].name);
-                    }
-                }
-            } else if (type === 'counter') {
-                // Flip 7 - Mindenkinek saját pontszámoló
-                players.forEach(p => {
-                    promises.push(addDoc(collection(db, "results"), {
-                        champId: champId,
-                        p1: p.email,
-                        p1Name: p.name,
-                        score1: 0,
-                        type: 'counter_score'
-                    }));
-                });
-            }
-
-            await Promise.all(promises);
-            showMessage("A bajnokság elindult! (" + translateType(type) + ")");
-        };
-
-        // --- ÁLLÁS ---
-        function updateStandingsSelector() {
-            const select = document.getElementById("standingsSelector");
-            const currentVal = select.value;
-            select.innerHTML = "";
-            window.state.championships.forEach((champ) => {
-                const opt = document.createElement("option");
-                opt.value = champ.id;
-                opt.textContent = champ.name;
-                select.appendChild(opt);
-            });
-            if (currentVal) select.value = currentVal;
-        }
-
-        window.renderStandings = function () {
-            const select = document.getElementById("standingsSelector");
-            if (!select.value && window.state.championships.length > 0) {
-                select.value = window.state.championships[0].id;
-            }
-            const champId = select.value;
-            if (!champId) return;
-
-            const champ = window.state.championships.find(c => c.id === champId);
-            if (!champ) return;
-
-            const matches = window.state.results.filter(r => r.champId === champId);
-            const contentDiv = document.getElementById("standingsContent");
-            const myMatchesDiv = document.getElementById("myMatchesList");
-
-            // Speciális nézet Counter (Flip 7) típushoz
-            if (champ.type === 'counter') {
-                renderCounterStandings(matches, contentDiv);
-                myMatchesDiv.innerHTML = ""; // Nincs külön meccs lista
-                return;
-            }
-
-            // Tabella számítása (Standard & Knockout is, bár Knockoutnál csak pontokat számolunk, a párosítás alul lesz)
-            const table = {};
-            // Init minden játékosnak
-            if (champ.players) {
-                champ.players.forEach(p => {
-                    table[p.email] = { name: p.name, points: 0, w: 0, d: 0, l: 0, matches: 0 };
-                });
-            }
-
-            matches.forEach(m => {
-                if (m.type === 'match' || !m.type) { // Backward compat
-                    // Ha olyan játékos van a meccsben, aki nincs a regisztráltak közt (pl. kilépett), kezeljük le
-                    if (!table[m.p1]) table[m.p1] = { name: m.p1Name, points: 0, w: 0, d: 0, l: 0, matches: 0 };
-                    if (!table[m.p2]) table[m.p2] = { name: m.p2Name, points: 0, w: 0, d: 0, l: 0, matches: 0 };
-
-                    if (m.score1 !== null && m.score2 !== null) {
-                        const s1 = parseInt(m.score1);
-                        const s2 = parseInt(m.score2);
-
-                        table[m.p1].matches++;
-                        table[m.p2].matches++;
-
-                        const pts = window.state.rules.pontozas || { gyozelem: 3, dontetlen: 1, vereseg: 0 };
-
-                        if (s1 > s2) {
-                            table[m.p1].points += pts.gyozelem; table[m.p1].w++;
-                            table[m.p2].points += pts.vereseg; table[m.p2].l++;
-                        } else if (s2 > s1) {
-                            table[m.p2].points += pts.gyozelem; table[m.p2].w++;
-                            table[m.p1].points += pts.vereseg; table[m.p1].l++;
+                        if (isRegistered) {
+                            actionHtml = `<span style="color: var(--secondary); font-weight: bold;">✓ Már regisztráltál</span>`;
                         } else {
-                            table[m.p1].points += pts.dontetlen; table[m.p1].d++;
-                            table[m.p2].points += pts.dontetlen; table[m.p2].d++;
+                            if (window.state.user) {
+                                actionHtml = `<button onclick="registerForChamp('${champ.id}')">Regisztráció</button>`;
+                            } else {
+                                actionHtml = `<span>Jelentkezéshez lépj be!</span>`;
+                            }
+                        }
+                    } else if (isStarted) {
+                        actionHtml = `<span>A bajnokság zajlik.</span>`;
+                    } else if (champ.status === 'finished') {
+                        actionHtml = `<span>Lezárult.</span>`;
+                    }
+
+                    let adminHtml = "";
+                    if (window.state.isAdmin) {
+                        if (champ.status === 'open') {
+                            adminHtml = `<button onclick="startChampionship('${champ.id}')" style="background-color: var(--success); margin-top: 10px;">Bajnokság Elindítása</button>`;
+                        }
+                        adminHtml += `<div style="margin-top: 5px; font-size: 0.9em; color: #666;">Regisztráltak: ${champ.players ? champ.players.length : 0} fő</div>`;
+                    }
+
+                    // Kép kiválasztása
+                    let imgSrc = "";
+                    const nameLower = champ.name.toLowerCase();
+                    const typeLower = (champ.type || "").toLowerCase();
+
+                    if (nameLower.includes("darts") || typeLower === "round_robin") imgSrc = "darts.jpg";
+                    if (nameLower.includes("klask") || typeLower === "team_round_robin") imgSrc = "klask.jpg";
+                    if (nameLower.includes("flip") || typeLower === "counter") imgSrc = "flip7.jpg";
+
+                    let headerHtml = "";
+                    if (imgSrc) {
+                        headerHtml = `<img src="${imgSrc}" class="champ-image" alt="${champ.name}">`;
+                    } else {
+                        // Placeholder ha nincs kép (pl Sakk)
+                        let icon = "🏆";
+                        if (nameLower.includes("sakk") || typeLower === "knockout") icon = "♟️";
+                        headerHtml = `<div class="champ-header-placeholder">${icon}</div>`;
+                    }
+
+                    div.innerHTML = `
+                    ${headerHtml}
+                    <div class="card-content">
+                        <h3>${champ.name} <small style="color:#888; font-weight:normal;">(${translateType(champ.type)})</small></h3>
+                        <p class="status-badge" style="color: var(--primary); font-weight:bold; margin-bottom:10px;">${translateStatus(champ.status)}</p>
+                        <p>${actionHtml}</p>
+                        ${adminHtml}
+                    </div>
+                `;
+                    container.appendChild(div);
+                });
+            }
+
+            function translateStatus(status) {
+                if (status === 'open') return 'Regisztráció nyitva';
+                if (status === 'started') return 'Folyamatban';
+                if (status === 'finished') return 'Vége';
+                return status;
+            }
+
+            function translateType(type) {
+                if (type === 'round_robin') return 'Körmérkőzés';
+                if (type === 'knockout') return 'Kieséses';
+                if (type === 'team_round_robin') return 'Páros';
+                if (type === 'counter') return 'Számláló';
+                return 'Körmérkőzés'; // Default
+            }
+
+            window.registerForChamp = async function (champId) {
+                if (!window.state.user) return;
+
+                const champRef = doc(db, "championships", champId);
+                const champ = window.state.championships.find(c => c.id === champId);
+
+                if (!champ) return;
+                const players = champ.players || [];
+
+                if (players.some(p => p.email === window.state.user.username)) {
+                    showMessage("Már regisztráltál!", "error");
+                    return;
+                }
+
+                let playerName = window.state.user.name;
+                // Klask (Páros) esetén partner bekérése
+                if (champ.type === 'team_round_robin') {
+                    const partner = prompt("Kérlek add meg a páros partnered nevét:");
+                    if (!partner) return; // Mégse
+                    playerName = `${window.state.user.name} & ${partner}`;
+                }
+
+                const newPlayers = [...players, {
+                    name: playerName,
+                    email: window.state.user.username
+                }];
+
+                try {
+                    await updateDoc(champRef, { players: newPlayers });
+                    showMessage("Sikeres regisztráció!");
+                } catch (e) {
+                    console.error(e);
+                    showMessage("Hiba a mentéskor: " + e.message, "error");
+                }
+            };
+
+            // --- ADMIN ---
+            window.createChampionship = async function () {
+                const nameInput = document.getElementById("newChampName");
+                const typeInput = document.getElementById("newChampType");
+
+                if (!nameInput.value.trim()) {
+                    showMessage("Adj meg egy nevet!", "error");
+                    return;
+                }
+
+                try {
+                    await addDoc(collection(db, "championships"), {
+                        name: nameInput.value,
+                        type: typeInput.value,
+                        status: 'open',
+                        players: [],
+                        createdAt: Date.now() // Hogy sorba tudjuk rendezni
+                    });
+                    nameInput.value = "";
+                    showMessage("Bajnokság létrehozva (" + translateType(typeInput.value) + ").");
+                } catch (e) {
+                    console.error(e);
+                    showMessage("Hiba létrehozáskor: " + e.message, "error");
+                }
+            };
+
+            window.startChampionship = async function (champId) {
+                const champ = window.state.championships.find(c => c.id === champId);
+                if (!champ || !champ.players || champ.players.length < 2) {
+                    showMessage("Legalább 2 játékos kell az indításhoz!", "error");
+                    return;
+                }
+
+                const players = [...champ.players]; // copy
+                const promises = [];
+                const type = champ.type || 'round_robin';
+
+                // 1. Státusz frissítése
+                await updateDoc(doc(db, "championships", champId), { status: 'started' });
+
+                // 2. Logika típus szerint
+                if (type === 'round_robin' || type === 'team_round_robin') {
+                    // Körmérkőzés - Mindenki mindenki ellen
+                    for (let i = 0; i < players.length; i++) {
+                        for (let j = i + 1; j < players.length; j++) {
+                            promises.push(addDoc(collection(db, "results"), {
+                                champId: champId,
+                                p1: players[i].email,
+                                p1Name: players[i].name,
+                                p2: players[j].email,
+                                p2Name: players[j].name,
+                                score1: null,
+                                score2: null,
+                                type: 'match'
+                            }));
                         }
                     }
+                } else if (type === 'knockout') {
+                    // Sakk - Végeletlen párosítás (1. kör)
+                    // Shuffle players
+                    players.sort(() => Math.random() - 0.5);
+
+                    for (let i = 0; i < players.length; i += 2) {
+                        if (i + 1 < players.length) {
+                            promises.push(addDoc(collection(db, "results"), {
+                                champId: champId,
+                                p1: players[i].email,
+                                p1Name: players[i].name,
+                                p2: players[i + 1].email,
+                                p2Name: players[i + 1].name,
+                                score1: null,
+                                score2: null,
+                                round: 1,
+                                type: 'match'
+                            }));
+                        } else {
+                            // Páratlan játékos - erőnyerő (egyelőre nem kezeljük külön, vagy automatikusan továbbjut?)
+                            console.log("Erőnyerő:", players[i].name);
+                        }
+                    }
+                } else if (type === 'counter') {
+                    // Flip 7 - Mindenkinek saját pontszámoló
+                    players.forEach(p => {
+                        promises.push(addDoc(collection(db, "results"), {
+                            champId: champId,
+                            p1: p.email,
+                            p1Name: p.name,
+                            score1: 0,
+                            type: 'counter_score'
+                        }));
+                    });
                 }
-            });
 
-            // Tabella render
-            const sortedPlayers = Object.values(table).sort((a, b) => b.points - a.points);
+                await Promise.all(promises);
+                showMessage("A bajnokság elindult! (" + translateType(type) + ")");
+            };
 
-            let html = `<table><tr><th>Név</th><th>M</th><th>Gy</th><th>D</th><th>V</th><th>Pont</th></tr>`;
-            sortedPlayers.forEach(p => {
-                html += `<tr><td>${p.name}</td><td>${p.matches}</td><td>${p.w}</td><td>${p.d}</td><td>${p.l}</td><td><strong>${p.points}</strong></td></tr>`;
-            });
-            html += `</table>`;
+            // --- ÁLLÁS ---
+            function updateStandingsSelector() {
+                const select = document.getElementById("standingsSelector");
+                const currentVal = select.value;
+                select.innerHTML = "";
+                window.state.championships.forEach((champ) => {
+                    const opt = document.createElement("option");
+                    opt.value = champ.id;
+                    opt.textContent = champ.name;
+                    select.appendChild(opt);
+                });
+                if (currentVal) select.value = currentVal;
+            }
 
-            // Knockout esetén gomb a köv körhöz (Admin)
-            if (champ.type === 'knockout' && window.state.isAdmin && champ.status === 'started') {
-                html += `<div style="margin-top: 20px; text-align: center;">
+            window.renderStandings = function () {
+                const select = document.getElementById("standingsSelector");
+                if (!select.value && window.state.championships.length > 0) {
+                    select.value = window.state.championships[0].id;
+                }
+                const champId = select.value;
+                if (!champId) return;
+
+                const champ = window.state.championships.find(c => c.id === champId);
+                if (!champ) return;
+
+                const matches = window.state.results.filter(r => r.champId === champId);
+                const contentDiv = document.getElementById("standingsContent");
+                const myMatchesDiv = document.getElementById("myMatchesList");
+
+                // Speciális nézet Counter (Flip 7) típushoz
+                if (champ.type === 'counter') {
+                    renderCounterStandings(matches, contentDiv);
+                    myMatchesDiv.innerHTML = ""; // Nincs külön meccs lista
+                    return;
+                }
+
+                // Tabella számítása (Standard & Knockout is, bár Knockoutnál csak pontokat számolunk, a párosítás alul lesz)
+                const table = {};
+                // Init minden játékosnak
+                if (champ.players) {
+                    champ.players.forEach(p => {
+                        table[p.email] = { name: p.name, points: 0, w: 0, d: 0, l: 0, matches: 0 };
+                    });
+                }
+
+                matches.forEach(m => {
+                    if (m.type === 'match' || !m.type) { // Backward compat
+                        // Ha olyan játékos van a meccsben, aki nincs a regisztráltak közt (pl. kilépett), kezeljük le
+                        if (!table[m.p1]) table[m.p1] = { name: m.p1Name, points: 0, w: 0, d: 0, l: 0, matches: 0 };
+                        if (!table[m.p2]) table[m.p2] = { name: m.p2Name, points: 0, w: 0, d: 0, l: 0, matches: 0 };
+
+                        if (m.score1 !== null && m.score2 !== null) {
+                            const s1 = parseInt(m.score1);
+                            const s2 = parseInt(m.score2);
+
+                            table[m.p1].matches++;
+                            table[m.p2].matches++;
+
+                            const pts = window.state.rules.pontozas || { gyozelem: 3, dontetlen: 1, vereseg: 0 };
+
+                            if (s1 > s2) {
+                                table[m.p1].points += pts.gyozelem; table[m.p1].w++;
+                                table[m.p2].points += pts.vereseg; table[m.p2].l++;
+                            } else if (s2 > s1) {
+                                table[m.p2].points += pts.gyozelem; table[m.p2].w++;
+                                table[m.p1].points += pts.vereseg; table[m.p1].l++;
+                            } else {
+                                table[m.p1].points += pts.dontetlen; table[m.p1].d++;
+                                table[m.p2].points += pts.dontetlen; table[m.p2].d++;
+                            }
+                        }
+                    }
+                });
+
+                // Tabella render
+                const sortedPlayers = Object.values(table).sort((a, b) => b.points - a.points);
+
+                let html = `<table><tr><th>Név</th><th>M</th><th>Gy</th><th>D</th><th>V</th><th>Pont</th></tr>`;
+                sortedPlayers.forEach(p => {
+                    html += `<tr><td>${p.name}</td><td>${p.matches}</td><td>${p.w}</td><td>${p.d}</td><td>${p.l}</td><td><strong>${p.points}</strong></td></tr>`;
+                });
+                html += `</table>`;
+
+                // Knockout esetén gomb a köv körhöz (Admin)
+                if (champ.type === 'knockout' && window.state.isAdmin && champ.status === 'started') {
+                    html += `<div style="margin-top: 20px; text-align: center;">
                             <button onclick="generateNextRound('${champ.id}')" style="background-color: #f0ad4e; color: black;">Következő Forduló Generálása</button>
                           </div>`;
-            }
+                }
 
-            contentDiv.innerHTML = html;
+                contentDiv.innerHTML = html;
 
-            // Meccsek
-            myMatchesDiv.innerHTML = "";
-            const currentUser = window.state.user ? window.state.user.username : null;
+                // Meccsek
+                myMatchesDiv.innerHTML = "";
+                const currentUser = window.state.user ? window.state.user.username : null;
 
-            const relevantMatches = matches.filter(m =>
-                window.state.isAdmin || (currentUser && (m.p1 === currentUser || m.p2 === currentUser))
-            );
+                const relevantMatches = matches.filter(m =>
+                    window.state.isAdmin || (currentUser && (m.p1 === currentUser || m.p2 === currentUser))
+                );
 
-            if (relevantMatches.length === 0) {
-                myMatchesDiv.innerHTML = "<p>Nincs rögzíthető mérkőzés.</p>";
-                return;
-            }
+                if (relevantMatches.length === 0) {
+                    myMatchesDiv.innerHTML = "<p>Nincs rögzíthető mérkőzés.</p>";
+                    return;
+                }
 
-            relevantMatches.forEach((m) => {
-                const isPlayed = m.score1 !== null;
-                const div = document.createElement("div");
-                div.className = "card match-card";
+                relevantMatches.forEach((m) => {
+                    const isPlayed = m.score1 !== null;
 
-                let inputHtml = "";
-                if (!isPlayed || window.state.isAdmin) {
-                    inputHtml = `
-                        <input type="number" id="s1_${m.id}" value="${currentVal(m.score1)}" style="width:40px"> 
-                        - 
-                        <input type="number" id="s2_${m.id}" value="${currentVal(m.score2)}" style="width:40px">
-                        <button onclick="saveResult('${m.id}')">Mentés</button>
+
+                    const div = document.createElement("div");
+                    div.className = "card";
+
+                    let inputHtml = "";
+                    if (!isPlayed || window.state.isAdmin) {
+                        inputHtml = `
+                        <div style="display:flex; justify-content:center; align-items:center; gap:10px;">
+                            <input type="number" id="s1_${m.id}" value="${currentVal(m.score1)}" style="width:60px; text-align:center; font-size:1.2em;"> 
+                            <span style="font-weight:bold;">-</span> 
+                            <input type="number" id="s2_${m.id}" value="${currentVal(m.score2)}" style="width:60px; text-align:center; font-size:1.2em;">
+                            <button onclick="saveResult('${m.id}')">Mentés</button>
+                        </div>
                      `;
-                } else {
-                    inputHtml = `<strong>${m.score1} - ${m.score2}</strong>`;
-                }
+                    } else {
+                        inputHtml = `<div style="text-align:center; font-size:1.5em; font-weight:bold; color:var(--primary);">${m.score1} - ${m.score2}</div>`;
+                    }
 
-                div.innerHTML = `
-                    <div>${m.p1Name} vs ${m.p2Name}</div>
-                    <div style="margin-top:5px">${inputHtml}</div>
-                `;
-                myMatchesDiv.appendChild(div);
-            });
-        };
-
-        function currentVal(val) { return val === null ? '' : val; }
-
-        window.saveResult = async function (matchId) {
-            const s1 = document.getElementById(`s1_${matchId}`).value;
-            const s2 = document.getElementById(`s2_${matchId}`).value;
-
-            if (s1 === '' || s2 === '') {
-                showMessage("Kérlek töltsd ki mindkét mezőt!", "error");
-                return;
-            }
-
-            try {
-                await updateDoc(doc(db, "results", matchId), {
-                    score1: parseInt(s1),
-                    score2: parseInt(s2)
-                });
-                showMessage("Eredmény rögzítve.");
-            } catch (e) {
-                console.error(e);
-                showMessage("Hiba mentéskor: " + e.message, "error");
-            }
-        };
-
-        function renderCounterStandings(matches, container) {
-            // Flip 7 nézet
-            container.innerHTML = "<h3>Eredmények</h3>";
-            // Rendezzük pontszám szerint
-            matches.sort((a, b) => b.score1 - a.score1);
-
-            matches.forEach(m => {
-                const div = document.createElement("div");
-                div.className = "card";
-                div.style.display = "flex";
-                div.style.justifyContent = "space-between";
-                div.style.alignItems = "center";
-
-                // Gomb a növeléshez
-                const isMyScore = window.state.user && m.p1 === window.state.user.username;
-                let btnHtml = "";
-                if (isMyScore || window.state.isAdmin) {
-                    btnHtml = `<button onclick="incrementScore('${m.id}', ${m.score1})" style="background-color: #28a745;">+1 Győzelem</button>`;
-                }
-
-                div.innerHTML = `
-                    <div>
-                        <span style="font-size: 1.2em; font-weight: bold;">${m.p1Name}</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap: 10px;">
-                        <span style="font-size: 1.5em; font-weight: bold;">${m.score1}</span>
-                        ${btnHtml}
+                    div.innerHTML = `
+                    <div class="card-content" style="text-align:center;">
+                        <div style="margin-bottom:10px; font-weight:bold; font-size:1.1em;">${m.p1Name} <span style="color:#aaa;">vs</span> ${m.p2Name}</div>
+                        ${inputHtml}
                     </div>
                 `;
-                container.appendChild(div);
-            });
-        }
-
-        window.incrementScore = async function (docId, currentScore) {
-            try {
-                await updateDoc(doc(db, "results", docId), {
-                    score1: currentScore + 1
+                    myMatchesDiv.appendChild(div);
                 });
-                // showMessage("Pont jóváírva."); // Nem kell mindig zavarni
-            } catch (e) {
-                console.error(e);
-                showMessage("Hiba: " + e.message, "error");
-            }
-        };
+            };
 
-        window.generateNextRound = async function (champId) {
-            const matches = window.state.results.filter(r => r.champId === champId);
-            if (matches.length === 0) return;
+            function currentVal(val) { return val === null ? '' : val; }
 
-            // Find current max round
-            let maxRound = 0;
-            matches.forEach(m => { if (m.round > maxRound) maxRound = m.round; });
+            window.saveResult = async function (matchId) {
+                const s1 = document.getElementById(`s1_${matchId}`).value;
+                const s2 = document.getElementById(`s2_${matchId}`).value;
 
-            // Get matches of current round
-            const currentRoundMatches = matches.filter(m => m.round === maxRound);
-
-            // Check if all finished
-            const unfinished = currentRoundMatches.find(m => m.score1 === null || m.score2 === null);
-            if (unfinished) {
-                showMessage("Még vannak lejátszatlan meccsek ebben a körben!", "error");
-                return;
-            }
-
-            // Determine winners
-            const winners = [];
-            currentRoundMatches.forEach(m => {
-                const s1 = parseInt(m.score1);
-                const s2 = parseInt(m.score2);
-                if (s1 > s2) winners.push({ email: m.p1, name: m.p1Name });
-                else if (s2 > s1) winners.push({ email: m.p2, name: m.p2Name });
-                else {
-                    winners.push({ email: m.p1, name: m.p1Name + " (D)" });
+                if (s1 === '' || s2 === '') {
+                    showMessage("Kérlek töltsd ki mindkét mezőt!", "error");
+                    return;
                 }
-            });
 
-            if (winners.length < 2) {
-                showMessage("A bajnokság véget ért! Győztes: " + winners[0].name);
-                await updateDoc(doc(db, "championships", champId), { status: 'finished' });
-                return;
-            }
-
-            const promises = [];
-            for (let i = 0; i < winners.length; i += 2) {
-                if (i + 1 < winners.length) {
-                    promises.push(addDoc(collection(db, "results"), {
-                        champId: champId,
-                        p1: winners[i].email,
-                        p1Name: winners[i].name,
-                        p2: winners[i + 1].email,
-                        p2Name: winners[i + 1].name,
-                        score1: null,
-                        score2: null,
-                        round: maxRound + 1,
-                        type: 'match'
-                    }));
-                } else {
-                    console.log("Erőnyerő:", winners[i].name);
-                    showMessage(winners[i].name + " erőnyerő ebben a körben.");
+                try {
+                    await updateDoc(doc(db, "results", matchId), {
+                        score1: parseInt(s1),
+                        score2: parseInt(s2)
+                    });
+                    showMessage("Eredmény rögzítve.");
+                } catch (e) {
+                    console.error(e);
+                    showMessage("Hiba mentéskor: " + e.message, "error");
                 }
+            };
+
+            function renderCounterStandings(matches, container) {
+                // Flip 7 nézet
+                container.innerHTML = "<h3>Eredmények</h3>";
+                // Rendezzük pontszám szerint
+                matches.sort((a, b) => b.score1 - a.score1);
+
+                matches.forEach(m => {
+                    const div = document.createElement("div");
+                    div.className = "card";
+
+                    // Gomb a növeléshez
+                    const isMyScore = window.state.user && m.p1 === window.state.user.username;
+                    let btnHtml = "";
+                    if (isMyScore || window.state.isAdmin) {
+                        btnHtml = `<button onclick="incrementScore('${m.id}', ${m.score1})" style="background-color: var(--success);">+1 Győzelem</button>`;
+                    }
+
+                    div.innerHTML = `
+                    <div class="card-content" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="font-size: 1.2em; font-weight: bold;">${m.p1Name}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap: 15px;">
+                            <span style="font-size: 2em; font-weight: bold; color: var(--primary);">${m.score1}</span>
+                            ${btnHtml}
+                        </div>
+                    </div>
+                `;
+                    container.appendChild(div);
+                });
             }
 
-            await Promise.all(promises);
-            showMessage(`${maxRound + 1}. forduló generálva!`);
-        };
+            window.incrementScore = async function (docId, currentScore) {
+                try {
+                    await updateDoc(doc(db, "results", docId), {
+                        score1: currentScore + 1
+                    });
+                    // showMessage("Pont jóváírva."); // Nem kell mindig zavarni
+                } catch (e) {
+                    console.error(e);
+                    showMessage("Hiba: " + e.message, "error");
+                }
+            };
 
-        // Indítás
-        window.addEventListener('load', initApp);
+            window.generateNextRound = async function (champId) {
+                const matches = window.state.results.filter(r => r.champId === champId);
+                if (matches.length === 0) return;
 
-        // UI Event Listeners (mivel a modulból hívjuk a window.function-t, ezeket frissíteni kell a HTML-ben, de ott már onclick="..." van, ami a window.function-t keresi, így jó lesz.)
-        document.getElementById("loginButton").addEventListener("click", window.signIn);
-        document.getElementById("logoutButton").addEventListener("click", window.signOut);
+                // Find current max round
+                let maxRound = 0;
+                matches.forEach(m => { if (m.round > maxRound) maxRound = m.round; });
 
-    </script>
+                // Get matches of current round
+                const currentRoundMatches = matches.filter(m => m.round === maxRound);
+
+                // Check if all finished
+                const unfinished = currentRoundMatches.find(m => m.score1 === null || m.score2 === null);
+                if (unfinished) {
+                    showMessage("Még vannak lejátszatlan meccsek ebben a körben!", "error");
+                    return;
+                }
+
+                // Determine winners
+                const winners = [];
+                currentRoundMatches.forEach(m => {
+                    const s1 = parseInt(m.score1);
+                    const s2 = parseInt(m.score2);
+                    if (s1 > s2) winners.push({ email: m.p1, name: m.p1Name });
+                    else if (s2 > s1) winners.push({ email: m.p2, name: m.p2Name });
+                    else {
+                        winners.push({ email: m.p1, name: m.p1Name + " (D)" });
+                    }
+                });
+
+                if (winners.length < 2) {
+                    showMessage("A bajnokság véget ért! Győztes: " + winners[0].name);
+                    await updateDoc(doc(db, "championships", champId), { status: 'finished' });
+                    return;
+                }
+
+                const promises = [];
+                for (let i = 0; i < winners.length; i += 2) {
+                    if (i + 1 < winners.length) {
+                        promises.push(addDoc(collection(db, "results"), {
+                            champId: champId,
+                            p1: winners[i].email,
+                            p1Name: winners[i].name,
+                            p2: winners[i + 1].email,
+                            p2Name: winners[i + 1].name,
+                            score1: null,
+                            score2: null,
+                            round: maxRound + 1,
+                            type: 'match'
+                        }));
+                    } else {
+                        console.log("Erőnyerő:", winners[i].name);
+                        showMessage(winners[i].name + " erőnyerő ebben a körben.");
+                    }
+                }
+
+                await Promise.all(promises);
+                showMessage(`${maxRound + 1}. forduló generálva!`);
+            };
+
+            // Indítás
+            window.addEventListener('load', initApp);
+
+            // UI Event Listeners (mivel a modulból hívjuk a window.function-t, ezeket frissíteni kell a HTML-ben, de ott már onclick="..." van, ami a window.function-t keresi, így jó lesz.)
+            document.getElementById("loginButton").addEventListener("click", window.signIn);
+            document.getElementById("logoutButton").addEventListener("click", window.signOut);
+
+        </script>
 </body>
 
 </html>

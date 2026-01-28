@@ -497,12 +497,16 @@
 
                 let actionHtml = "";
 
-                if (champ.status === 'open') {
+                if (champ.status === 'open' || (champ.status === 'started' && champ.type === 'counter')) {
                     if (isRegistered) {
                         actionHtml = `<span style="color: var(--secondary); font-weight: bold;">✓ Már regisztráltál</span>`;
                     } else {
                         if (window.state.user) {
-                            actionHtml = `<button onclick="registerForChamp('${champ.id}')">Regisztráció</button>`;
+                            if (champ.status === 'started') {
+                                actionHtml = `<button onclick="registerForChamp('${champ.id}')">Csatlakozás (Folyamatos)</button>`;
+                            } else {
+                                actionHtml = `<button onclick="registerForChamp('${champ.id}')">Regisztráció</button>`;
+                            }
                         } else {
                             actionHtml = `<span>Jelentkezéshez lépj be!</span>`;
                         }
@@ -514,33 +518,38 @@
                 }
 
                 let adminHtml = "";
-                if (window.state.isAdmin) {
-                    if (champ.status === 'open') {
-                        adminHtml = `<button onclick="startChampionship('${champ.id}')" style="background-color: var(--success); margin-top: 10px;">Bajnokság Elindítása</button>`;
-                    }
-                    adminHtml += `<div style="margin-top: 5px; font-size: 0.9em; color: #666;">Regisztráltak: ${champ.players ? champ.players.length : 0} fő</div>`;
+                if (champ.status === 'open') {
+                    adminHtml = `<button onclick="startChampionship('${champ.id}')" style="background-color: var(--success); margin-top: 10px;">Bajnokság Elindítása</button>`;
+                } else if (champ.status === 'started') {
+                    adminHtml = `<button onclick="closeChampionship('${champ.id}')" style="background-color: #f0ad4e; margin-top: 10px;">Lezárás</button>`;
                 }
+
+                // Törlés gomb mindig látható adminnak
+                adminHtml += `<button onclick="deleteChampionship('${champ.id}', '${champ.name}')" style="background-color: #d9534f; margin-top: 10px; margin-left: 5px;">Törlés</button>`;
+
+                adminHtml += `<div style="margin-top: 5px; font-size: 0.9em; color: #666;">Regisztráltak: ${champ.players ? champ.players.length : 0} fő</div>`;
+            }
 
                 // Kép kiválasztása
                 let imgSrc = "";
-                const nameLower = champ.name.toLowerCase();
-                const typeLower = (champ.type || "").toLowerCase();
+            const nameLower = champ.name.toLowerCase();
+            const typeLower = (champ.type || "").toLowerCase();
 
-                if (nameLower.includes("darts") || typeLower === "round_robin") imgSrc = "darts.jpg";
-                if (nameLower.includes("klask") || typeLower === "team_round_robin") imgSrc = "klask.jpg";
-                if (nameLower.includes("flip") || typeLower === "counter") imgSrc = "flip7.jpg";
+            if (nameLower.includes("darts") || typeLower === "round_robin") imgSrc = "darts.jpg";
+            if (nameLower.includes("klask") || typeLower === "team_round_robin") imgSrc = "klask.jpg";
+            if (nameLower.includes("flip") || typeLower === "counter") imgSrc = "flip7.jpg";
 
-                let headerHtml = "";
-                if (imgSrc) {
-                    headerHtml = `<img src="${imgSrc}" class="champ-image" alt="${champ.name}">`;
-                } else {
-                    // Placeholder ha nincs kép (pl Sakk)
-                    let icon = "🏆";
-                    if (nameLower.includes("sakk") || typeLower === "knockout") icon = "♟️";
-                    headerHtml = `<div class="champ-header-placeholder">${icon}</div>`;
-                }
+            let headerHtml = "";
+            if (imgSrc) {
+                headerHtml = `<img src="${imgSrc}" class="champ-image" alt="${champ.name}">`;
+            } else {
+                // Placeholder ha nincs kép (pl Sakk)
+                let icon = "🏆";
+                if (nameLower.includes("sakk") || typeLower === "knockout") icon = "♟️";
+                headerHtml = `<div class="champ-header-placeholder">${icon}</div>`;
+            }
 
-                div.innerHTML = `
+            div.innerHTML = `
                     ${headerHtml}
                     <div class="card-content">
                         <h3>${champ.name} <small style="color:#888; font-weight:normal;">(${translateType(champ.type)})</small></h3>
@@ -549,8 +558,8 @@
                         ${adminHtml}
                     </div>
                 `;
-                container.appendChild(div);
-            });
+            container.appendChild(div);
+        });
         }
 
         function translateStatus(status) {
@@ -597,7 +606,20 @@
 
             try {
                 await updateDoc(champRef, { players: newPlayers });
-                showMessage("Sikeres regisztráció!");
+
+                // Ha Flip 7 és már megy, akkor inicializálnunk kell a játékos counterjét is!
+                if (champ.type === 'counter' && champ.status === 'started') {
+                    await addDoc(collection(db, "results"), {
+                        champId: champId,
+                        p1: window.state.user.username,
+                        p1Name: window.state.user.name,
+                        score1: 0,
+                        type: 'counter_score'
+                    });
+                    showMessage("Sikeres csatlakozás!");
+                } else {
+                    showMessage("Sikeres regisztráció!");
+                }
             } catch (e) {
                 console.error(e);
                 showMessage("Hiba a mentéskor: " + e.message, "error");
@@ -686,6 +708,7 @@
                 }
             } else if (type === 'counter') {
                 // Flip 7 - Mindenkinek saját pontszámoló
+                // Az alap játékosoknak hozzuk létre
                 players.forEach(p => {
                     promises.push(addDoc(collection(db, "results"), {
                         champId: champId,
@@ -699,6 +722,44 @@
 
             await Promise.all(promises);
             showMessage("A bajnokság elindult! (" + translateType(type) + ")");
+        };
+
+        window.closeChampionship = async function (champId) {
+            if (!confirm("Biztosan lezárod a bajnokságot?")) return;
+            try {
+                await updateDoc(doc(db, "championships", champId), { status: 'finished' });
+                showMessage("Bajnokság lezárva.");
+            } catch (e) {
+                showMessage("Hiba: " + e.message, "error");
+            }
+        };
+
+        window.deleteChampionship = async function (champId, champName) {
+            const confirmed = prompt(`Biztosan törölni akarod a(z) "${champName}" bajnokságot?\nEz a művelet NEM vonható vissza!\nA törléshez írd be: TORLES`);
+            if (confirmed !== "TORLES") {
+                if (confirmed) showMessage("Törlés megszakítva (helytelen megerősítő kód).", "error");
+                return;
+            }
+
+            try {
+                // 1. Eredmények törlése
+                const qResults = query(collection(db, "results"), where("champId", "==", champId));
+                const snapshot = await getDocs(qResults);
+                const batch = writeBatch(db);
+
+                snapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+
+                // 2. Bajnokság dokumentum törlése
+                batch.delete(doc(db, "championships", champId));
+
+                await batch.commit();
+                showMessage("Bajnokság és eredményei törölve.");
+            } catch (e) {
+                console.error(e);
+                showMessage("Hiba törléskor: " + e.message, "error");
+            }
         };
 
         // --- ÁLLÁS ---

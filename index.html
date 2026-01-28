@@ -737,8 +737,13 @@
 
         window.deleteChampionship = async function (champId, champName) {
             const confirmed = prompt(`Biztosan törölni akarod a(z) "${champName}" bajnokságot?\nEz a művelet NEM vonható vissza!\nA törléshez írd be: TORLES`);
-            if (confirmed !== "TORLES") {
-                if (confirmed) showMessage("Törlés megszakítva (helytelen megerősítő kód).", "error");
+
+            if (!confirmed) return; // Mégse gomb
+
+            // Megengedőbb ellenőrzés (kisbetű/nagybetű, felesleges szóköz, ékezet)
+            const s = confirmed.trim().toUpperCase();
+            if (s !== "TORLES" && s !== "TÖRLÉS") {
+                showMessage("Törlés megszakítva (helytelen megerősítő kód).", "error");
                 return;
             }
 

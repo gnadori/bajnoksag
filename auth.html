@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Bejelentkezés Példa</title>
+</head>
+<body>
+
+    <h1>Üdvözöllek az oldalon!</h1>
+
+    <button id="loginButton">Bejelentkezés Microsoft-fiókkal</button>
+
+    <div id="userInfo" style="display: none;">
+        <h2>Bejelentkezve mint: <span id="userName"></span></h2>
+        <button id="logoutButton">Kijelentkezés</button>
+    </div>
+
+    <script src="https://alcdn.msauth.net/browser/2.14.2/js/msal-browser.min.js"></script>
+
+    <script>
+        // 1. MSAL konfiguráció
+        const msalConfig = {
+            auth: {
+                // Ide másold be az Azure portálról kapott Application (client) ID-t!
+                clientId: "9bd37c49-0d30-4101-9315-191ab930867a",
+                authority: "https://login.microsoftonline.com/common", // Ez a végpont jó a legtöbb fióktípushoz
+                // Ide azt az URL-t írd, amit az alkalmazás regisztrációjakor megadtál!
+                redirectUri: "https://gnadori.github.io/circuits/auth.html" // Vagy a te átirányítási URL-ed
+            },
+            cache: {
+                cacheLocation: "sessionStorage", // Hol tárolja a bejelentkezési infót
+                storeAuthStateInCookie: false, 
+            }
+        };
+
+        // 2. MSAL példány létrehozása
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        // 3. UI elemek referenciái
+        const loginButton = document.getElementById("loginButton");
+        const logoutButton = document.getElementById("logoutButton");
+        const userInfoDiv = document.getElementById("userInfo");
+        const userNameSpan = document.getElementById("userName");
+
+        // 4. Bejelentkezési funkció
+        async function signIn() {
+            const loginRequest = {
+                scopes: ["User.Read"] // Engedélykérés a felhasználó alap adatainak olvasására
+            };
+
+            try {
+                const loginResponse = await msalInstance.loginPopup(loginRequest);
+                console.log("Sikeres bejelentkezés:", loginResponse);
+                updateUI(loginResponse.account);
+            } catch (error) {
+                console.error("Hiba a bejelentkezés során:", error);
+            }
+        }
+
+        // 5. Kijelentkezési funkció
+        function signOut() {
+            const logoutRequest = {
+                account: msalInstance.getActiveAccount()
+            };
+            msalInstance.logoutPopup(logoutRequest);
+            updateUI(null);
+        }
+        
+        // 6. Felhasználói felület frissítése a bejelentkezési állapot alapján
+        function updateUI(account) {
+            if (account) {
+                loginButton.style.display = 'none';
+                userInfoDiv.style.display = 'block';
+                userNameSpan.textContent = account.name; // Vagy account.username
+            } else {
+                loginButton.style.display = 'block';
+                userInfoDiv.style.display = 'none';
+            }
+        }
+        
+        // Eseménykezelők hozzáadása a gombokhoz
+        loginButton.addEventListener("click", signIn);
+        logoutButton.addEventListener("click", signOut);
+
+        // Oldal betöltésekor ellenőrizzük, hogy van-e már bejelentkezett felhasználó
+        const currentAccount = msalInstance.getActiveAccount();
+        updateUI(currentAccount);
+
+    </script>
+</body>
+</html>

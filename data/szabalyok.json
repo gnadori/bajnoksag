@@ -1,0 +1,11 @@
+{
+    "pontozas": {
+        "gyozelem": 3,
+        "dontetlen": 1,
+        "vereseg": 0
+    },
+    "adminok": [
+        "admin@iskola.hu",
+        "gnadori@gmail.com" 
+    ]
+}

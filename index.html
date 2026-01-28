@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iskolai Bajnokság</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #333; }
+        button { padding: 8px 16px; cursor: pointer; background-color: #0078d4; color: white; border: none; border-radius: 4px; margin-right: 5px; }
+        button:hover { background-color: #005a9e; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        input, select { padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; }
+        .hidden { display: none; }
+        .card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px; background-color: #f9f9f9; }
+        .match-card { border-left: 4px solid #0078d4; padding-left: 10px; margin: 10px 0; }
+        .nav { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .nav button { background-color: transparent; color: #333; border: 1px solid #ddd; }
+        .nav button.active { background-color: #eee; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .error { color: red; margin: 10px 0; }
+        .success { color: green; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="authSection">
+        <h1>Iskolai Bajnokság</h1>
+        <button id="loginButton">Bejelentkezés Microsoft-fiókkal</button>
+        <div id="loadingMessage" class="hidden">Betöltés...</div>
+    </div>
+
+    <div id="appSection" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 id="welcomeTitle">Üdvözöllek!</h1>
+            <button id="logoutButton" style="background-color: #d9534f;">Kijelentkezés</button>
+        </div>
+        <div id="roleDisplay" style="margin-bottom: 10px; font-style: italic; color: #666;"></div>
+
+        <div class="nav">
+            <button onclick="showPage('list')">Bajnokságok</button>
+            <button onclick="showPage('standings')">Állás</button>
+            <button onclick="showPage('admin')" id="adminNavBtn" class="hidden">Adminisztráció</button>
+        </div>
+
+        <div id="messageArea"></div>
+
+        <!-- Bajnokságok Lista Oldal -->
+        <div id="page-list" class="page">
+            <h2>Aktív Bajnokságok</h2>
+            <div id="championshipsList"></div>
+        </div>
+
+        <!-- Állás Oldal -->
+        <div id="page-standings" class="page hidden">
+            <h2>Eredmények és Állás</h2>
+            <select id="standingsSelector" onchange="renderStandings()"></select>
+            <div id="standingsContent"></div>
+            <h3>Saját Meccsek / Eredmény Beírása</h3>
+            <div id="myMatchesList"></div>
+        </div>
+
+        <!-- Admin Oldal -->
+        <div id="page-admin" class="page hidden">
+            <h2>Adminisztráció</h2>
+            
+            <div class="card">
+                <h3>Új Bajnokság</h3>
+                <input type="text" id="newChampName" placeholder="Bajnokság neve">
+                <button onclick="createChampionship()">Létrehozás</button>
+            </div>
+
+            <div class="card">
+                <h3>Adatok Kezelése</h3>
+                <button onclick="downloadData()">Adatok Letöltése (JSON)</button>
+                <button onclick="resetLocalData()" style="background-color: orange;">Helyi Adatok Törlése</button>
+                <p><small>A rendszer a böngésző helyi tárhelyét (LocalStorage) használja. A "Letöltés" gombbal kimentheted az aktuális állapotot.</small></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MSAL Library -->
+    <script src="https://alcdn.msauth.net/browser/2.14.2/js/msal-browser.min.js"></script>
+
+    <script>
+        // --- KONFIGURÁCIÓ ---
+        const msalConfig = {
+            auth: {
+                clientId: "9bd37c49-0d30-4101-9315-191ab930867a",
+                authority: "https://login.microsoftonline.com/common",
+                redirectUri: window.location.href // Automatikusan az aktuális oldalra irányít vissza
+            },
+            cache: { cacheLocation: "sessionStorage", storeAuthStateInCookie: false }
+        };
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        // --- ADATKEZELÉS (LocalStorage + JSON betöltés) ---
+        let state = {
+            rules: {},
+            championships: [],
+            results: [],
+            user: null,
+            isAdmin: false
+        };
+
+        async function initApp() {
+            // 1. Adatok betöltése
+            await loadData();
+            
+            // 2. Auth ellenőrzés
+            const currentAccount = msalInstance.getActiveAccount();
+            if (currentAccount) {
+                handleLoginSuccess(currentAccount);
+            } else {
+                // Megpróbáljuk csendben, ha visszatérő vendég
+                const accounts = msalInstance.getAllAccounts();
+                if (accounts.length > 0) {
+                    msalInstance.setActiveAccount(accounts[0]);
+                    handleLoginSuccess(accounts[0]);
+                }
+            }
+        }
+
+        async function loadData() {
+            // Megpróbáljuk a LocalStorage-ból betölteni
+            const storedRules = localStorage.getItem('rules');
+            const storedChamps = localStorage.getItem('championships');
+            const storedResults = localStorage.getItem('results');
+
+            if (storedRules && storedChamps && storedResults) {
+                state.rules = JSON.parse(storedRules);
+                state.championships = JSON.parse(storedChamps);
+                state.results = JSON.parse(storedResults);
+            } else {
+                // Ha nincs LS, akkor a JSON fájlokból (kezdeti állapot)
+                try {
+                    const [rulesRes, champsRes, resultsRes] = await Promise.all([
+                        fetch('data/szabalyok.json'),
+                        fetch('data/bajnoksagok.json'),
+                        fetch('data/eredmenyek.json')
+                    ]);
+                    state.rules = await rulesRes.json();
+                    state.championships = await champsRes.json();
+                    state.results = await resultsRes.json();
+                    saveData(); // Elmentjük rögtön LS-be
+                } catch (e) {
+                    console.error("Hiba az adatok betöltésekor:", e);
+                    showMessage("Hiba történt az alapadatok betöltésekor. Ellenőrizd a konzolt.", "error");
+                }
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('rules', JSON.stringify(state.rules));
+            localStorage.setItem('championships', JSON.stringify(state.championships));
+            localStorage.setItem('results', JSON.stringify(state.results));
+            renderAll();
+        }
+
+        // --- AUTENTIKÁCIÓ ---
+        document.getElementById("loginButton").addEventListener("click", signIn);
+        document.getElementById("logoutButton").addEventListener("click", signOut);
+
+        async function signIn() {
+            try {
+                const loginResponse = await msalInstance.loginPopup({ scopes: ["User.Read"] });
+                handleLoginSuccess(loginResponse.account);
+            } catch (error) {
+                console.error(error);
+                showMessage("Sikertelen bejelentkezés.", "error");
+            }
+        }
+
+        function signOut() {
+            msalInstance.logoutPopup({ account: msalInstance.getActiveAccount() });
+            window.location.reload();
+        }
+
+        function handleLoginSuccess(account) {
+            state.user = account;
+            document.getElementById("authSection").classList.add("hidden");
+            document.getElementById("appSection").classList.remove("hidden");
+            document.getElementById("welcomeTitle").textContent = `Üdv, ${account.name}!`;
+
+            // Admin jog ellenőrzése
+            state.isAdmin = state.rules.adminok && state.rules.adminok.includes(account.username); // username gyakran az email
+            
+            if (state.isAdmin) {
+                document.getElementById("adminNavBtn").classList.remove("hidden");
+                document.getElementById("roleDisplay").textContent = "Szerepkör: Adminisztrátor";
+            } else {
+                document.getElementById("roleDisplay").textContent = "Szerepkör: Látogató / Versenyző";
+            }
+
+            renderAll();
+            showPage('list');
+        }
+
+        // --- MEGJELENÍTÉS (RENDER) ---
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+        }
+
+        function renderAll() {
+            renderChampionshipsList();
+            updateStandingsSelector();
+            renderStandings(); // Ha épp ott vagyunk
+        }
+
+        function showMessage(msg, type = 'success') {
+            const area = document.getElementById("messageArea");
+            area.innerHTML = `<div class="${type}">${msg}</div>`;
+            setTimeout(() => area.innerHTML = '', 3000);
+        }
+
+        // --- FUNKCIÓK: BAJNOKSÁGOK LISTÁJA ---
+        function renderChampionshipsList() {
+            const container = document.getElementById("championshipsList");
+            container.innerHTML = "";
+
+            if (state.championships.length === 0) {
+                container.innerHTML = "<p>Nincs aktív bajnokság.</p>";
+                return;
+            }
+
+            state.championships.forEach((champ, index) => {
+                const div = document.createElement("div");
+                div.className = "card";
+                
+                const isRegistered = champ.players && champ.players.some(p => p.email === state.user.username);
+                const isStarted = champ.status === 'started';
+
+                let actionHtml = "";
+                
+                if (champ.status === 'open') {
+                    if (isRegistered) {
+                        actionHtml = `<span style="color: green; font-weight: bold;">Már regisztráltál</span>`;
+                    } else {
+                        actionHtml = `<button onclick="registerForChamp(${index})">Regisztráció</button>`;
+                    }
+                } else if (isStarted) {
+                    actionHtml = `<span>A bajnokság zajlik.</span>`;
+                } else if (champ.status === 'finished') {
+                    actionHtml = `<span>Lezárult.</span>`;
+                }
+
+                // Admin gombok
+                let adminHtml = "";
+                if (state.isAdmin) { 
+                    if (champ.status === 'open') {
+                        adminHtml = `<button onclick="startChampionship(${index})" style="background-color: #5cb85c; margin-top: 10px;">Bajnokság Elindítása</button>`;
+                    }
+                    adminHtml += `<div style="margin-top: 5px; font-size: 0.9em;">Regisztráltak: ${champ.players ? champ.players.length : 0} fő</div>`;
+                }
+
+                div.innerHTML = `
+                    <h3>${champ.name} (${translateStatus(champ.status)})</h3>
+                    <p>${actionHtml}</p>
+                    ${adminHtml}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function translateStatus(status) {
+            if (status === 'open') return 'Regisztráció nyitva';
+            if (status === 'started') return 'Folyamatban';
+            if (status === 'finished') return 'Vége';
+            return status;
+        }
+
+        function registerForChamp(index) {
+            if (!state.user) return;
+            if (!state.championships[index].players) state.championships[index].players = [];
+            
+            // Duplikáció ellenőrzés
+            if (state.championships[index].players.some(p => p.email === state.user.username)) {
+                showMessage("Már regisztráltál!", "error");
+                return;
+            }
+
+            state.championships[index].players.push({
+                name: state.user.name,
+                email: state.user.username
+            });
+            saveData();
+            showMessage("Sikeres regisztráció!");
+        }
+
+        // --- FUNKCIÓK: ADMIN ---
+        function createChampionship() {
+            const nameInput = document.getElementById("newChampName");
+            if (!nameInput.value.trim()) {
+                showMessage("Adj meg egy nevet!", "error");
+                return;
+            }
+            state.championships.push({
+                id: Date.now(), // Egyszerű ID
+                name: nameInput.value,
+                status: 'open',
+                players: []
+            });
+            saveData();
+            nameInput.value = "";
+            showMessage("Bajnokság létrehozva.");
+            renderAll();
+        }
+
+        function startChampionship(index) {
+            const champ = state.championships[index];
+            if (!champ.players || champ.players.length < 2) {
+                showMessage("Legalább 2 játékos kell az indításhoz!", "error");
+                return;
+            }
+
+            champ.status = 'started';
+            
+            // Körmérkőzés generálás (Round Robin)
+            // Mindenki játszik mindenkivel egyszer
+            const players = champ.players;
+            for (let i = 0; i < players.length; i++) {
+                for (let j = i + 1; j < players.length; j++) {
+                    state.results.push({
+                        champId: champ.id,
+                        p1: players[i].email,
+                        p1Name: players[i].name,
+                        p2: players[j].email,
+                        p2Name: players[j].name,
+                        score1: null,
+                        score2: null
+                    });
+                }
+            }
+            saveData();
+            showMessage("A bajnokság elindult! Meccsek generálva.");
+        }
+
+        function downloadData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "school_champ_backup.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function resetLocalData() {
+            if(confirm("Biztosan törlöd a helyi adatokat és visszatöltöd az alapállapotot?")) {
+                localStorage.clear();
+                window.location.reload();
+            }
+        }
+
+        // --- FUNKCIÓK: ÁLLÁS ÉS EREDMÉNYEK ---
+        function updateStandingsSelector() {
+            const select = document.getElementById("standingsSelector");
+            select.innerHTML = "";
+            state.championships.forEach((champ) => {
+                const opt = document.createElement("option");
+                opt.value = champ.id;
+                opt.textContent = champ.name;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderStandings() {
+            const champId = parseInt(document.getElementById("standingsSelector").value);
+            if (!champId) return;
+
+            const champ = state.championships.find(c => c.id === champId);
+            if (!champ) return;
+
+            const matches = state.results.filter(r => r.champId === champId);
+            const contentDiv = document.getElementById("standingsContent");
+            const myMatchesDiv = document.getElementById("myMatchesList");
+            
+            // Tabella számítása
+            const table = {};
+            champ.players.forEach(p => {
+                table[p.email] = { name: p.name, points: 0, w: 0, d: 0, l: 0, matches: 0 };
+            });
+
+            matches.forEach(m => {
+                if (m.score1 !== null && m.score2 !== null) {
+                    const s1 = parseInt(m.score1);
+                    const s2 = parseInt(m.score2);
+                    
+                    if (table[m.p1]) table[m.p1].matches++;
+                    if (table[m.p2]) table[m.p2].matches++;
+
+                    if (s1 > s2) {
+                        if (table[m.p1]) { table[m.p1].points += state.rules.pontozas.gyozelem; table[m.p1].w++; }
+                        if (table[m.p2]) { table[m.p2].points += state.rules.pontozas.vereseg; table[m.p2].l++; }
+                    } else if (s2 > s1) {
+                         if (table[m.p2]) { table[m.p2].points += state.rules.pontozas.gyozelem; table[m.p2].w++; }
+                         if (table[m.p1]) { table[m.p1].points += state.rules.pontozas.vereseg; table[m.p1].l++; }
+                    } else {
+                         if (table[m.p1]) { table[m.p1].points += state.rules.pontozas.dontetlen; table[m.p1].d++; }
+                         if (table[m.p2]) { table[m.p2].points += state.rules.pontozas.dontetlen; table[m.p2].d++; }
+                    }
+                }
+            });
+
+            // Tabella renderelése
+            const sortedPlayers = Object.values(table).sort((a, b) => b.points - a.points);
+            
+            let html = `<table><tr><th>Név</th><th>M</th><th>Gy</th><th>D</th><th>V</th><th>Pont</th></tr>`;
+            sortedPlayers.forEach(p => {
+                html += `<tr><td>${p.name}</td><td>${p.matches}</td><td>${p.w}</td><td>${p.d}</td><td>${p.l}</td><td><strong>${p.points}</strong></td></tr>`;
+            });
+            html += `</table>`;
+            contentDiv.innerHTML = html;
+
+            // Saját meccsek / Eredmény rögzítés
+            myMatchesDiv.innerHTML = "";
+            if (!state.user) return;
+
+            // Ha admin, akkor mindenkit láthat, amúgy csak a sajátot
+            // De a feladat szerint: "megtekintheti az állást" (mindenki), "beírhatja a saját meccsei eredményét" (versenyző)
+            // Admin is beírhatja eredményt.
+            
+            const relevantMatches = matches.filter(m => 
+                state.isAdmin || m.p1 === state.user.username || m.p2 === state.user.username
+            );
+
+            if (relevantMatches.length === 0) {
+                 myMatchesDiv.innerHTML = "<p>Nincs rögzíthető mérkőzés.</p>";
+                 return;
+            }
+
+            relevantMatches.forEach((m, idx) => { // Megj: idx itt nem jó a globális tömb indexelésére!
+                // Meg kell keresni az eredeti indexet a state.results-ban
+                const originalIndex = state.results.indexOf(m);
+
+                const isPlayed = m.score1 !== null;
+                const div = document.createElement("div");
+                div.className = "card match-card";
+                
+                let inputHtml = "";
+                if (!isPlayed || state.isAdmin) { // Ha még nincs lejátszva vagy admin vagyok, szerkeszthető
+                     inputHtml = `
+                        <input type="number" id="s1_${originalIndex}" value="${currentVal(m.score1)}" style="width:40px"> 
+                        - 
+                        <input type="number" id="s2_${originalIndex}" value="${currentVal(m.score2)}" style="width:40px">
+                        <button onclick="saveResult(${originalIndex})">Mentés</button>
+                     `;
+                } else {
+                    inputHtml = `<strong>${m.score1} - ${m.score2}</strong>`;
+                }
+
+                div.innerHTML = `
+                    <div>${m.p1Name} vs ${m.p2Name}</div>
+                    <div style="margin-top:5px">${inputHtml}</div>
+                `;
+                myMatchesDiv.appendChild(div);
+            });
+        }
+
+        function currentVal(val) { return val === null ? '' : val; }
+
+        function saveResult(index) {
+            const s1 = document.getElementById(`s1_${index}`).value;
+            const s2 = document.getElementById(`s2_${index}`).value;
+
+            if (s1 === '' || s2 === '') {
+                showMessage("Kérlek töltsd ki mindkét mezőt!", "error");
+                return;
+            }
+
+            state.results[index].score1 = parseInt(s1);
+            state.results[index].score2 = parseInt(s2);
+            saveData();
+            showMessage("Eredmény rögzítve.");
+        }
+
+        // Indítás
+        window.addEventListener('load', initApp);
+
+    </script>
+</body>
+</html>

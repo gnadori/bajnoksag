@@ -25,6 +25,7 @@ A rendszer többféle lebonyolítási módot támogat:
 *   **Bajnokság Indítása**: Ha összegyűltek a jelentkezők, a zöld gombbal generálható le a sorsolás.
 *   **Lezárás**: Ha vége a bajnokságnak, lezárható (további módosítás nem lehetséges).
 *   **Törlés**: A bajnokság és az összes hozzá tartozó eredmény végleges törlése.
+*   **Eredmények Korrekciója**: Hibás rögzítés esetén az admin törölheti (resetelheti) a meccseredményeket, Flip 7 esetén pedig csökkentheti (-1) a pontszámot.
 
 ## 💻 Technikai Háttér
 

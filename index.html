@@ -881,6 +881,7 @@
                             <span style="font-weight:bold;">-</span> 
                             <input type="number" id="s2_${m.id}" value="${currentVal(m.score2)}" style="width:60px; text-align:center; font-size:1.2em;">
                             <button onclick="saveResult('${m.id}')">Mentés</button>
+                            ${window.state.isAdmin ? `<button onclick="resetResult('${m.id}')" style="background-color: #d9534f; margin-left:5px;">Törlés</button>` : ''}
                         </div>
                      `;
                 } else {
@@ -947,6 +948,9 @@
                 let btnHtml = "";
                 if (isMyScore || window.state.isAdmin) {
                     btnHtml = `<button onclick="incrementScore('${m.id}', ${m.score1})" style="background-color: var(--success);">+1 Győzelem</button>`;
+                    if (window.state.isAdmin) {
+                        btnHtml += `<button onclick="decrementScore('${m.id}', ${m.score1})" style="background-color: #f0ad4e; margin-left: 5px;">-1</button>`;
+                    }
                 }
 
                 div.innerHTML = `
@@ -969,7 +973,32 @@
                 await updateDoc(doc(db, "results", docId), {
                     score1: currentScore + 1
                 });
-                // showMessage("Pont jóváírva."); // Nem kell mindig zavarni
+            } catch (e) {
+                console.error(e);
+                showMessage("Hiba: " + e.message, "error");
+            }
+        };
+
+        window.decrementScore = async function (docId, currentScore) {
+            if (currentScore <= 0) return;
+            try {
+                await updateDoc(doc(db, "results", docId), {
+                    score1: currentScore - 1
+                });
+            } catch (e) {
+                console.error(e);
+                showMessage("Hiba: " + e.message, "error");
+            }
+        };
+
+        window.resetResult = async function (matchId) {
+            if (!confirm("Biztosan törölni akarod az eredményt?")) return;
+            try {
+                await updateDoc(doc(db, "results", matchId), {
+                    score1: null,
+                    score2: null
+                });
+                showMessage("Eredmény törölve.");
             } catch (e) {
                 console.error(e);
                 showMessage("Hiba: " + e.message, "error");

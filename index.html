@@ -545,9 +545,9 @@
                     headerHtml = `<img src="${imgSrc}" class="champ-image" alt="${champ.name}">`;
                 } else {
                     // Placeholder ha nincs kép (pl Sakk)
-                    let icon = "🏆";
-                    if (nameLower.includes("sakk") || typeLower === "knockout") icon = "♟️";
-                    headerHtml = `<div class="champ-header-placeholder">${icon}</div>`;
+                    let icon = "Bajnokság";
+                    if (nameLower.includes("sakk") || typeLower === "knockout") icon = "Sakk";
+                    headerHtml = `<div class="champ-header-placeholder" style="display:flex; justify-content:center; align-items:center; font-size: 2em; font-weight:bold; color:var(--primary_dark);">${icon}</div>`;
                 }
 
                 div.innerHTML = `
